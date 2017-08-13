@@ -1,4 +1,5 @@
 const fs = require('fs');
+const CountModel = require('./wc.model');
 
 function dataStat(data) {
     return new Promise((resolve) => { /* because we don't reject */
@@ -6,11 +7,11 @@ function dataStat(data) {
         let charCount = input.length; /* The length of string is character count */
         let wordCount = 0;
         let lineCount = data.split('\n').length;
-        let spaceCount = 0;
-        let lowerCaseCount = 0;
-        let upperCaseCount = 0;
-        let numberCount = 0;
-        let specialCount = 0;
+        let spaceCount = 0; 
+        let lowerCaseCount = 0; /* lowercase letters */
+        let upperCaseCount = 0; /* uppercase letters */
+        let numberCount = 0; /* numbers */
+        let specialCount = 0; /* not alphanum */
         let inWord = false;
         for (let i = 0; i < input.length; i++) {
             if (input[i] === ' ') {
@@ -36,16 +37,7 @@ function dataStat(data) {
                 specialCount++;
             }
         }
-        resolve ({
-            chars: charCount,
-            words: wordCount,
-            numbers: numberCount,
-            specials: specialCount - spaceCount,
-            lines: lineCount,
-            lowers: lowerCaseCount,
-            uppers: upperCaseCount,
-            spaces: spaceCount
-        });
+        resolve (new CountModel(charCount, lineCount, lowerCaseCount, numberCount, spaceCount, specialCount, upperCaseCount, wordCount));
     });
 }
 
@@ -57,7 +49,7 @@ function wc(filename) {
                 reject(error);
             } else {
                 let str = data.toString('utf8');
-                dataStat(str).then(x => resolve(x));
+                dataStat(str).then(countModel => resolve(countModel));
             }
         });
     });
